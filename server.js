@@ -18,17 +18,20 @@ function onRequest(request, response) {
 
 function sendURL(action,link){
 
-	var item = new items(link);
+	
 	console.log("Item "+ item.getLink() + " recibido");
 	if (action=="/"){
+		var item = new items(link);
 		if (current) {
 		item.setNext(current.getNext());
 		}
+		//Wipe current?
 		current = item;
 		newVideo(current);
 
 	}else
 	if (action=="/p"){
+		var item = new items(link, function());
 		console.log("Adding to the queue");
 		if (current){
 			current.addToQueue(item);
@@ -39,22 +42,37 @@ function sendURL(action,link){
 	}else
 	if (action=="/n"){
 		play.next();
-	} else{
-	omx.stdin.write(action);
+	} 
+	/*else{
+	omx.stdin.write(action);*/
 	
 	}
 	
 
 }
 
-function items(linkE,nextE){
+function items(linkE,callback){
 	var link = linkE;
 	var next = nextE;
+	var converted;
 	this.addToQueue = function(item){
 		if (next) {
 			next.addToQueue(item);
 		}else{
 			next = item;
+		}
+	}
+	this.convert = function(){
+		if link.search("vimeo"){
+			var aux = exec('vimeo_url'+link,function callback(error, stdout, stderr){
+				if (stdout)
+					converted = stdout;
+			});
+		}else{
+			var aux = exec('youtube-dl -g '+link,function callback(error, stdout, stderr){
+				if (stdout)
+					converted = stdout;
+			});
 		}
 	}
 	this.setNext = function (nextA){
@@ -66,15 +84,23 @@ function items(linkE,nextE){
 	this.getLink = function(){
 		return link;
 	}
-exports.addToQueue = this.addToQueue;
-exports.setNext = this.setNext;
+	this.getVideo = function(){
+		return converted;
+	}
+	this.convert();
 
 }
 function newVideo(item){
 		console.log("Stopping previous");
 		if (play.isOmx()) play.stop();
 		console.log("Starting video");
-		play.start(item);
+		function iterator(){
+			if (item.getVideo()){
+			 	play.start(item)
+			}else{
+				setTimeout(function(iterator()),500)
+			}
+		}
 }
 
 function player(item){
@@ -87,8 +113,8 @@ function player(item){
 	}
 	this.start = function (item){
 		current = item;
-		omx = new exec('omxplayer -o hdmi -p  "$(youtube-dl -g '+item.getLink()+')"', function callback(error, stdout, stderr){
-		console.log("\nError:" + error + "\nStdout" + stdout + "\nStderr:" + stderr);
+		omx = new exec('omxplayer -o hdmi -p '+item.getVideo(), function callback(error, stdout, stderr){
+		console.log("\nError:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 	    	if (stdout)
 			play.next();
 		});
@@ -103,8 +129,6 @@ function player(item){
 	    			}
 	}
 
-exports.start = this.start;
-exports.stop = this.stop;
 
 }
 
