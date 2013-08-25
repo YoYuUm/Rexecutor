@@ -3,6 +3,7 @@ var exec = require('child_process').exec;
 var url = require("url");
 var current;
 var play = new player();
+var pipe = "/tmp/mystdin"
 
 function onRequest(request, response) {
     var pathname = url.parse(request.url).pathname;
@@ -100,7 +101,7 @@ function items(linkE,callback){
 
 }
 function newVideo(item){
-		iterator();
+		/*iterator();
 		function iterator(){
 			if (item.getVideo()){
 				console.log("Stopping previous");
@@ -110,7 +111,11 @@ function newVideo(item){
 				console.log("Waiting for link");	
 				setTimeout(function(){iterator()},500)
 			}
-		}
+		}*/
+
+		console.log("Stopping previous");
+		if (play.isOmx()) play.stop();
+		play.start(item)
 }
 
 function player(item){
@@ -122,13 +127,22 @@ function player(item){
 
 	}
 	this.start = function (item){
-		console.log("Starting video: "+ item.getVideo());
+		console.log("Starting video: "+ item.getLink());
           	current = item;
-		var app= "omxplayer -o hdmi -p \""+ item.getVideo() + "\""
-		app = app.replace(/(\r\n|\n|\r)/gm,"");		
-		console.log(app);
-		omx = new exec(app , function callback(error, stdout, stderr){
-		console.log("\nError:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
+        var stream;
+        if (item.getLink().search("vimeo") >= 0 ){
+        	stream="vimeo_downloader.sh "+item.getLink();
+        }else{
+        	stream="youtube-dl "item.getLink()+" -o "+pipe;
+        }
+		var app= "omxplayer -o hdmi -p "+pipe;
+		stream = new exec(stream, function (error,stdout,stderr){
+			if (error)
+				console.log("Error: "+error);
+		});	
+
+		omx = new exec(app , function (error, stdout, stderr){
+			console.log("\nError:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 	    	if (stdout)
 			play.next();
 		});
