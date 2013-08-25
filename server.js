@@ -19,7 +19,7 @@ function onRequest(request, response) {
 function sendURL(action,link){
 
 	
-	console.log("Item "+ item.getLink() + " recibido");
+	console.log("Item "+ link + " recibido");
 	if (action=="/"){
 		var item = new items(link);
 		if (current) {
@@ -31,7 +31,7 @@ function sendURL(action,link){
 
 	}else
 	if (action=="/p"){
-		var item = new items(link, function());
+		var item = new items(link);
 		console.log("Adding to the queue");
 		if (current){
 			current.addToQueue(item);
@@ -44,16 +44,17 @@ function sendURL(action,link){
 		play.next();
 	} 
 	/*else{
-	omx.stdin.write(action);*/
+	omx.stdin.write(action);
+        }*/
 	
-	}
+}
 	
 
-}
+
 
 function items(linkE,callback){
 	var link = linkE;
-	var next = nextE;
+	var next;
 	var converted;
 	this.addToQueue = function(item){
 		if (next) {
@@ -63,15 +64,23 @@ function items(linkE,callback){
 		}
 	}
 	this.convert = function(){
-		if link.search("vimeo"){
-			var aux = exec('vimeo_url'+link,function callback(error, stdout, stderr){
+		console.log('Printing link.search(vimeo): '+ link.search("vimeo"));
+		if (link.search("vimeo") >= 0 ){
+				console.log("Vimeo video");
+				var aux = exec('vimeo_url '+link,function callback(error, stdout, stderr){
+				console.log("Movidas de Vimeo \nError:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 				if (stdout)
 					converted = stdout;
+					console.log("Converted video link: "+ converted);
+
 			});
 		}else{
+			console.log("Youtube video");
 			var aux = exec('youtube-dl -g '+link,function callback(error, stdout, stderr){
 				if (stdout)
 					converted = stdout;
+					console.log("Converted video link: "+ converted);
+
 			});
 		}
 	}
@@ -91,14 +100,15 @@ function items(linkE,callback){
 
 }
 function newVideo(item){
-		console.log("Stopping previous");
-		if (play.isOmx()) play.stop();
-		console.log("Starting video");
+		iterator();
 		function iterator(){
 			if (item.getVideo()){
+				console.log("Stopping previous");
+				if (play.isOmx()) play.stop();
 			 	play.start(item)
 			}else{
-				setTimeout(function(iterator()),500)
+				console.log("Waiting for link");	
+				setTimeout(function(){iterator()},500)
 			}
 		}
 }
@@ -112,8 +122,12 @@ function player(item){
 
 	}
 	this.start = function (item){
-		current = item;
-		omx = new exec('omxplayer -o hdmi -p '+item.getVideo(), function callback(error, stdout, stderr){
+		console.log("Starting video: "+ item.getVideo());
+          	current = item;
+		var app= "omxplayer -o hdmi -p \""+ item.getVideo() + "\""
+		app = app.replace(/(\r\n|\n|\r)/gm,"");		
+		console.log(app);
+		omx = new exec(app , function callback(error, stdout, stderr){
 		console.log("\nError:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 	    	if (stdout)
 			play.next();
