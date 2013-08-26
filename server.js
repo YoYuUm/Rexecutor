@@ -133,7 +133,7 @@ function player(item){
         if (item.getLink().search("vimeo") >= 0 ){
         	stream="vimeo_downloader.sh "+item.getLink();
         }else{
-        	stream="youtube-dl "item.getLink()+" -o "+pipe;
+        	stream="youtube-dl "+item.getLink()+" -o "+pipe;
         }
 		var app= "omxplayer -o hdmi -p "+pipe;
 		stream = new exec(stream, function (error,stdout,stderr){
