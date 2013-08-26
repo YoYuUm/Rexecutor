@@ -64,6 +64,7 @@ function items(linkE,callback){
 			next = item;
 		}
 	}
+	/*
 	this.convert = function(){
 		console.log('Printing link.search(vimeo): '+ link.search("vimeo"));
 		if (link.search("vimeo") >= 0 ){
@@ -84,7 +85,7 @@ function items(linkE,callback){
 
 			});
 		}
-	}
+	}*/
 	this.setNext = function (nextA){
 		next = nextA
 	}
@@ -97,7 +98,7 @@ function items(linkE,callback){
 	this.getVideo = function(){
 		return converted;
 	}
-	this.convert();
+	//this.convert();
 
 }
 function newVideo(item){
@@ -130,10 +131,14 @@ function player(item){
 		console.log("Starting video: "+ item.getLink());
           	current = item;
         var stream;
+        //Create some system to dynamically add new downloaders
         if (item.getLink().search("vimeo") >= 0 ){
         	stream="vimeo_downloader.sh "+item.getLink();
-        }else{
-        	stream="youtube-dl "item.getLink()+" -o "+pipe;
+        }else if (item.getLink().search("rtmp://") >=0){
+        			stream= item.getLink();
+        	       }
+        	else{
+        		stream="youtube-dl "item.getLink()+" -o "+pipe;
         }
 		var app= "omxplayer -o hdmi -p "+pipe;
 		stream = new exec(stream, function (error,stdout,stderr){
