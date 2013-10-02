@@ -144,16 +144,31 @@ function player(item){
 	this.getPath = function(item){
 
 		//Create some system to dynamically add new downloaders
-		var path = pipe
-		switch (true){
-        case (item.getLink().search("vimeo") >= 0):
-        	setStream("vimeo_downloader.sh "+item.getLink());
+		var filters = [
+						"http://",
+						"rtmp://",
+						"vimeo"]
+		var path = item.getLink()
+
+		var option;
+
+		for (var i;i<filters.length();i++){
+			if (item.getLink().search(filters[i]) >=0){
+				option = i;
+			}
+
+		}
+
+		
+		switch (option){
+        case 0:
+        	setStream="youtube-dl "+item.getLink()+" -o "+pipe;
         	break;
-        case (item.getLink().search("rtmp://") >=0):
+        case 1:
         	setStream(item.getLink());
         	break;
-       	case (item.getLink().search("http://") >=0):
-        	setStream="youtube-dl "+item.getLink()+" -o "+pipe;
+       	case 2:
+        	setStream("vimeo_downloader.sh "+item.getLink());
         	break
         default:
         	path=item.getLink()
