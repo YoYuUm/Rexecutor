@@ -1,9 +1,11 @@
 var http = require("http");
 var exec = require('child_process').exec;
 var url = require("url");
+var fs = require('fs');
 var current;
 var play = new player();
 var pipe = "/tmp/mystdin"
+
 
 function onRequest(request, response) {
     var pathname = url.parse(request.url).pathname;
@@ -121,31 +123,49 @@ function newVideo(item){
 
 function player(item){
 	var omx;
+	var stream;
+
 	this.isOmx = function (){
 		var bool = false;
 		if (omx) bool = true;
 		return bool; 
-
 	}
-	this.start = function (item){
-		console.log("Starting video: "+ item.getLink());
-          	current = item;
-        var stream;
-        //Create some system to dynamically add new downloaders
-        if (item.getLink().search("vimeo") >= 0 ){
-        	stream="vimeo_downloader.sh "+item.getLink();
-        }else if (item.getLink().search("rtmp://") >=0){
-        			stream= item.getLink();
-        	       }
-       	else{
-        		stream="youtube-dl "+item.getLink()+" -o "+pipe;
-        }
-		var app= "omxplayer -o hdmi -p "+pipe;
-		stream = new exec(stream, function (error,stdout,stderr){
+
+	this.setStream = function(command){
+		if (stream)
+			stream.kill("SIGKILL")
+		stream = new exec(command, function (error,stdout,stderr){
 			if (error)
 				console.log("\nSTREAM Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 		});	
+	}
 
+
+	this.getPath = function(item){
+
+		//Create some system to dynamically add new downloaders
+		var path = pipe
+		switch (true){
+        case (item.getLink().search("vimeo") >= 0):
+        	setStream("vimeo_downloader.sh "+item.getLink());
+        	break;
+        case (item.getLink().search("rtmp://") >=0):
+        	setStream(item.getLink());
+        	break;
+       	case (item.getLink().search("http://") >=0):
+        	setStream="youtube-dl "+item.getLink()+" -o "+pipe;
+        	break
+        default:
+        	path=item.getLink()
+        }
+	}
+
+	this.start = function (item){
+		console.log("Starting video: "+ item.getLink());
+        current = item;
+ 		
+ 		var app= "omxplayer -o hdmi -p "+pipe;
+		
 		omx = new exec(app , function (error, stdout, stderr){
 			console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 	    	if (stdout)
@@ -164,6 +184,13 @@ function player(item){
 
 
 }
+
+//Creating temp pipe
+fs.exists(pipe, function (exists) {
+  if (!exists) 
+  	new exec("mkdir "+pipe)
+});
+
 
 http.createServer(onRequest).listen(8888);
 
