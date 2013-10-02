@@ -1,20 +1,46 @@
 var http = require("http");
 var exec = require('child_process').exec;
 var url = require("url");
+var fs = require("fs");
+//var express = require("express");
+//var app = express();
 var current;
 var play = new player();
 var pipe = "/tmp/mystdin"
 
+
+/*
+app.get('/', function(req, res){
+  res.setHeader('Content-Type', 'text/plain');
+  res.end(fs.readFileSync("./index.html"));
+});
+
+app.post("/add", function(req,res){
+	req.
+})
+*/
+
 function onRequest(request, response) {
     var pathname = url.parse(request.url).pathname;
     var query = url.parse(request.url).query;
-    if (query){
-    sendURL(pathname,query);
-    }
+  //  console.log(request);
+    if (pathname === "/add"){
+    	 var data = '';
+    	 var parsedData = "";
+        request.addListener('data', function(chunk) { data += chunk; });
+        request.addListener('end', function() {
+            parsedData = JSON.stringify(data);
+            console.log("Parsed data:"+parsedData);
+            response.writeHead(200, {'content-type': 'text/plain' });
+            response.end()
+        });
+    }else{
     response.writeHead(200, {"Content-Type": "text/html"});
-    response.write("Peticion Recibida");
-    response.end();
+    response.end(fs.readFileSync("./index.html")); 
+	}
+    
 }
+
 
 
 function sendURL(action,link){
@@ -166,5 +192,6 @@ function player(item){
 }
 
 http.createServer(onRequest).listen(8888);
+//app.listen(8888);
+console.log('Listening on port 8888');
 
-console.log("Servidor Iniciado.");
