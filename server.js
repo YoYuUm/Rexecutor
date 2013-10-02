@@ -137,17 +137,17 @@ function player(item){
         }else if (item.getLink().search("rtmp://") >=0){
         			stream= item.getLink();
         	       }
-        	else{
+       	else{
         		stream="youtube-dl "+item.getLink()+" -o "+pipe;
         }
 		var app= "omxplayer -o hdmi -p "+pipe;
 		stream = new exec(stream, function (error,stdout,stderr){
 			if (error)
-				console.log("Error: "+error);
+				console.log("\nSTREAM Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 		});	
 
 		omx = new exec(app , function (error, stdout, stderr){
-			console.log("\nError:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
+			console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 	    	if (stdout)
 			play.next();
 		});
