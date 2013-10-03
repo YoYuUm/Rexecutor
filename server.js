@@ -125,6 +125,7 @@ function player(item){
 	var omx;
 	var stream;
 
+
 	this.isOmx = function (){
 		var bool = false;
 		if (omx) bool = true;
@@ -141,13 +142,15 @@ function player(item){
 	}
 
 
-	this.getPath = function(item){
+	this.getPath = function(item,callback){
 
-		//Create some system to dynamically add new downloaders
 		var filters = [
 						"http://",
 						"rtmp://",
 						"vimeo"]
+
+		//Create some system to dynamically add new downloaders
+		
 		var path = item.getLink()
 
 		var option;
@@ -176,19 +179,27 @@ function player(item){
         default:
         	path=item.getLink()
         }
+
+        callback(path)
 	}
 
 	this.start = function (item){
 		console.log("Starting video: "+ item.getLink());
         current = item;
  		
- 		var app= "omxplayerb -o hdmi -p "+pipe;
+ 		this.getPath(item, function (path){
+
+ 				var app= "omxplayerb -o hdmi -p "+path;
 		
-		omx = new exec(app , function (error, stdout, stderr){
-			console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
-	    	if (stdout)
-			play.next();
-		});
+				omx = new exec(app , function (error, stdout, stderr){
+					console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
+			    	if (stdout)
+					play.next();
+				});
+
+ 		})
+
+ 		
 	}
 	this.stop = function(){
 		exec("sudo kill -9 $(pidof omxplayer.bin)");
