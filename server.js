@@ -133,6 +133,7 @@ function player(item){
 	}
 
 	this.setStream = function(command){
+		console.log("Im in set stream");
 		if (stream)
 			stream.kill("SIGKILL")
 		stream = new exec(command, function (error,stdout,stderr){
@@ -143,6 +144,7 @@ function player(item){
 
 
 	this.getPath = function(item,callback){
+		console.log("im in getPath");
 
 		var filters = [
 						"http://",
@@ -155,7 +157,7 @@ function player(item){
 
 		var option;
 
-		for (var i;i<filters.length();i++){
+		for (var i=0;i<filters.length;i++){
 			if (item.getLink().search(filters[i]) >=0){
 				option = i;
 			}
@@ -166,15 +168,15 @@ function player(item){
 		switch (option){
         case 0:
         	console.log("Youtube-dl link detected")
-        	setStream="youtube-dl "+item.getLink()+" -o "+pipe;
+        	this.setStream="youtube-dl "+item.getLink()+" -o "+pipe;
         	break;
         case 1:
         	console.log("RTMP Steam detected")
-        	setStream(item.getLink());
+        	this.setStream(item.getLink());
         	break;
        	case 2:
        		console.log("Vimeo link detected")
-        	setStream("vimeo_downloader.sh "+item.getLink());
+        	this.setStream("vimeo_downloader.sh "+item.getLink());
         	break
         default:
         	path=item.getLink()
@@ -187,10 +189,11 @@ function player(item){
 		console.log("Starting video: "+ item.getLink());
         current = item;
  		
+
  		this.getPath(item, function (path){
 
  				var app= "omxplayerb -o hdmi -p "+path;
-		
+				
 				omx = new exec(app , function (error, stdout, stderr){
 					console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 			    	if (stdout)
