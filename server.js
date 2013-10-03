@@ -137,6 +137,8 @@ function player(item){
 		if (stream)
 			stream.kill("SIGKILL")
 		stream = new exec(command, function (error,stdout,stderr){
+			if (stdout)
+				console.log("STREAM STDOUT "+stdout)
 			if (error)
 				console.log("\nSTREAM Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 		});	
@@ -168,7 +170,7 @@ function player(item){
 		switch (option){
         case 0:
         	console.log("Youtube-dl link detected")
-        	this.setStream="youtube-dl "+item.getLink()+" -o "+pipe;
+        	this.setStream("youtube-dl "+item.getLink()+" -o "+pipe);
         	break;
         case 1:
         	console.log("RTMP Steam detected")
@@ -191,10 +193,10 @@ function player(item){
  		
 
  		this.getPath(item, function (path){
-
- 				var app= "omxplayerb -o hdmi -p "+path;
+				console.log("Calling OMX with this path: "+path);
+ 				var command= "omxplayerb -o hdmi -p "+path;
 				
-				omx = new exec(app , function (error, stdout, stderr){
+				omx = new exec(command , function (error, stdout, stderr){
 					console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
 			    	if (stdout)
 					play.next();
@@ -220,7 +222,7 @@ function player(item){
 //Creating temp pipe
 fs.exists(pipe, function (exists) {
   if (!exists) 
-  	new exec("mkdir "+pipe)
+  	new exec("mkfifo "+pipe)
 });
 
 
