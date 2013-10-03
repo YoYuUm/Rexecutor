@@ -179,7 +179,7 @@ function player(item){
 		console.log("Starting video: "+ item.getLink());
         current = item;
  		
- 		var app= "omxplayer -o hdmi -p "+pipe;
+ 		var app= "omxplayerb -o hdmi -p "+pipe;
 		
 		omx = new exec(app , function (error, stdout, stderr){
 			console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
