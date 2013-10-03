@@ -162,12 +162,15 @@ function player(item){
 		
 		switch (option){
         case 0:
+        	console.log("Youtube-dl link detected")
         	setStream="youtube-dl "+item.getLink()+" -o "+pipe;
         	break;
         case 1:
+        	console.log("RTMP Steam detected")
         	setStream(item.getLink());
         	break;
        	case 2:
+       		console.log("Vimeo link detected")
         	setStream("vimeo_downloader.sh "+item.getLink());
         	break
         default:
@@ -179,7 +182,7 @@ function player(item){
 		console.log("Starting video: "+ item.getLink());
         current = item;
  		
- 		var app= "omxplayer -o hdmi -p "+pipe;
+ 		var app= "omxplayerb -o hdmi -p "+pipe;
 		
 		omx = new exec(app , function (error, stdout, stderr){
 			console.log("\nOMX Error:" + error + "\nStdout:" + stdout + "\nStderr:" + stderr);
