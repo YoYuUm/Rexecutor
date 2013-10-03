@@ -162,12 +162,15 @@ function player(item){
 		
 		switch (option){
         case 0:
+        	console.log("Youtube-dl link detected")
         	setStream="youtube-dl "+item.getLink()+" -o "+pipe;
         	break;
         case 1:
+        	console.log("RTMP Steam detected")
         	setStream(item.getLink());
         	break;
        	case 2:
+       		console.log("Vimeo link detected")
         	setStream("vimeo_downloader.sh "+item.getLink());
         	break
         default:
