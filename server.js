@@ -1,9 +1,12 @@
 var http = require("http");
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
+var EventEmitter = require("events").EventEmitter
+var global_events= new EventEmiter();
 var url = require("url");
 var fs = require('fs');
 var current;
+
 
 function onRequest(request, response) {
     var pathname = url.parse(request.url).pathname;
@@ -21,6 +24,8 @@ function sendURL(action,link){
 
 	console.log("Item "+ link + " recibido");
 	if (action=="/"){
+	
+		global_events
 		var item = new items(link);
 		if (current) {
 		item.setNext(current.getNext());
