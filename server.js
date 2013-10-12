@@ -2,9 +2,11 @@ var http = require("http");
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
 var EventEmitter = require("events").EventEmitter
-var global_events= new EventEmiter();
+var util = require("util");
+var global_events = new EventEmitter();
 var url = require("url");
 var fs = require('fs');
+var playlist = require('./playlist');
 var current;
 
 
@@ -29,17 +31,12 @@ function sendURL(action,link){
 
 	}else
 	if (action=="/p"){
-		var item = new items(link);
-		console.log("Adding to the queue");
-		if (current){
-			current.addToQueue(item);
-		}else {
-			console.log("There is not playlist, starting one");
-			newVideo(item);
-		}
+
+        global_events.emit("queue",link);
+		
 	}else
 	if (action=="/cmd"){
-		OMX.cmd(link);
+		global_events.emit("omx_cmd",link)
 	} 
 }
 	

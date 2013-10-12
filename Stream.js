@@ -52,3 +52,6 @@ function Stream(){
 
 }
 
+util.inherits(Stream,RP.RaspberryProcess("Stream"));
+
+exports.Stream = Stream;

@@ -1,16 +1,21 @@
-var OMX = new Omx();
-var STREAM = new Stream();
+var RP = require("./RaspberryProcess");
+var Omx = require("./Omx")
+var Stream = require("./Stream")
+var OMX = new Omx.Omx();
+var STREAM = new Stream.Stream();;
 var pipe = "/tmp/mystdin"
 
 //Events
 
 
 
-function newVideo(item){
+function new_video(item){
 		var omxR = false;
 		var streamR = false;
 		var pipeR = false;
 		var events = new EventEmitter();
+
+
 		var aux = new exec("sudo rm "+pipe,function(){
 			var aux2 = new exec("mkfifo "+pipe,function(error){
 				if (error)
@@ -21,6 +26,11 @@ function newVideo(item){
 					events.emit("pipe_ready")
 			})
 		})
+
+
+		global_events.on("omx_cmd",function(cmd){
+           OMX.cmd(cmd);
+        })
 
 
 		var start = function(link){
@@ -74,3 +84,6 @@ function newVideo(item){
 			}
 		})
 }
+
+
+exports.new_video = new_video;
